@@ -1,6 +1,6 @@
 ## Live Dashboard
 
-(http://192.168.1.105:8501)
+(https://precious-metal-premium-strategy-aampauzxdfvbvwrafucckx.streamlit.app/)
 # Precious Metal Premium Mean-Reversion Strategy
 
 This project analyzes the **premium spread between futures and spot prices of gold and silver** to identify potential mean-reversion trading opportunities.
