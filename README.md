@@ -210,6 +210,18 @@ Potential extensions:
 - automated data pipeline scheduling
 - cloud deployment
 
+## Dashboard Features
+
+- Live Market Panel
+- Today Trading Signal
+- Strategy Health Monitor
+- Equity Curve Visualization
+- Z-score Signal Chart
+- Backtest Detail Table
+- Strategy Ranking
+- Portfolio Simulator
+- Daily Auto Update
+- CLI Launcher
 ---
 
 # Author
