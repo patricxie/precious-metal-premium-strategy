@@ -1,0 +1,13 @@
+asset,holding_days,signal,avg_return_pct,win_rate_pct,trades,max_return_pct,min_return_pct
+gold,5,BUY,0.82,62.5,16,8.46,-8.59
+gold,5,SELL,1.03,66.67,3,2.73,-1.31
+gold,10,BUY,1.18,62.5,16,13.09,-7.42
+gold,10,SELL,-0.81,33.33,3,0.81,-3.13
+gold,20,BUY,3.69,68.75,16,22.58,-2.97
+gold,20,SELL,-2.41,66.67,3,2.06,-10.44
+silver,5,BUY,2.62,55.56,18,15.28,-3.68
+silver,5,SELL,-0.95,44.44,9,4.72,-6.15
+silver,10,BUY,4.48,72.22,18,22.93,-4.51
+silver,10,SELL,-2.77,33.33,9,7.23,-8.71
+silver,20,BUY,9.1,83.33,18,61.92,-9.57
+silver,20,SELL,-5.56,33.33,9,5.55,-23.76

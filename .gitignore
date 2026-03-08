@@ -15,7 +15,7 @@ venv/
 .ipynb_checkpoints/
 
 # Data
-data/processed/*.csv
+# data/processed/*.csv
 database/*.db
 
 # Streamlit cache

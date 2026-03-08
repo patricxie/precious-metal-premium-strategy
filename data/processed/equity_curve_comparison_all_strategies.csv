@@ -1,0 +1,13 @@
+asset,signal,holding_days,final_capital,trades,total_return_pct
+silver,BUY,20,41702.5,18,317.02
+silver,BUY,10,21129.45,18,111.29
+gold,BUY,20,17364.68,16,73.65
+silver,BUY,5,15535.94,18,55.36
+gold,BUY,10,11802.7,16,18.03
+gold,BUY,5,11255.04,16,12.55
+gold,SELL,5,10308.0,3,3.08
+gold,SELL,10,9755.39,3,-2.45
+gold,SELL,20,9245.33,3,-7.55
+silver,SELL,5,9126.87,9,-8.73
+silver,SELL,10,7687.32,9,-23.13
+silver,SELL,20,5701.32,9,-42.99
