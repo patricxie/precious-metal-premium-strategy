@@ -27,3 +27,5 @@ logs/
 # IDE
 .idea/
 .vscode/
+
+*.egg-info/
