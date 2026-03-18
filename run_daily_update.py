@@ -19,6 +19,7 @@ def run_script(script_name: str):
         raise FileNotFoundError(f"找不到檔案：{script_path}")
 
     print(f"\nRunning: {script_path}")
+
     result = subprocess.run(
         [sys.executable, str(script_path)],
         cwd=BASE_DIR,
@@ -37,10 +38,15 @@ def run_script(script_name: str):
     with open(LOG_PATH, "a", encoding="utf-8") as f:
         f.write(log_text)
 
+    print("----- STDOUT -----")
+    print(result.stdout if result.stdout else "(empty)")
+    print("----- STDERR -----")
+    print(result.stderr if result.stderr else "(empty)")
+
     if result.returncode != 0:
         raise RuntimeError(f"{script_name} 執行失敗，請查看 {LOG_PATH}")
 
-    print(result.stdout)
+    print(f"{script_name} 執行成功")
 
 
 def write_last_update(status: str, message: str):
