@@ -31,7 +31,28 @@ jobs:
         run: |
           python run_daily_update.py
 
+      - name: Show pipeline log if failed
+        if: failure()
+        run: |
+          echo "===== daily_update_log.txt ====="
+          if [ -f data/processed/daily_update_log.txt ]; then
+            cat data/processed/daily_update_log.txt
+          else
+            echo "daily_update_log.txt not found"
+          fi
+
+      - name: Show last_update.json if failed
+        if: failure()
+        run: |
+          echo "===== last_update.json ====="
+          if [ -f data/processed/last_update.json ]; then
+            cat data/processed/last_update.json
+          else
+            echo "last_update.json not found"
+          fi
+
       - name: Commit updated files
+        if: success()
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -40,5 +61,6 @@ jobs:
           git diff --cached --quiet || git commit -m "Auto update market data"
 
       - name: Push changes
+        if: success()
         run: |
           git push
