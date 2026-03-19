@@ -323,6 +323,38 @@ def generate_strategy_report(summary_df, risk_df, compare_df, last_update):
     return PDF_OUTPUT_PATH
 
 
+def report_dependencies() -> list[Path]:
+    return [
+        SUMMARY_PATH,
+        RISK_PATH,
+        COMPARE_PATH,
+        LAST_UPDATE_PATH,
+        CHARTS_DIR / "equity_curve_comparison_all_strategies.png",
+        CHARTS_DIR / "backtest_avg_return.png",
+        CHARTS_DIR / "backtest_win_rate.png",
+        CHARTS_DIR / "gold_zscore_2year_signal.png",
+        CHARTS_DIR / "silver_zscore_2year_signal.png",
+    ]
+
+
+def is_pdf_stale(pdf_path: Path) -> bool:
+    if not pdf_path.exists():
+        return True
+
+    pdf_mtime = pdf_path.stat().st_mtime
+    for path in report_dependencies():
+        if path.exists() and path.stat().st_mtime > pdf_mtime:
+            return True
+
+    return False
+
+
+def ensure_fresh_pdf_report(summary_df, risk_df, compare_df, last_update) -> Path:
+    if is_pdf_stale(PDF_OUTPUT_PATH):
+        return generate_strategy_report(summary_df, risk_df, compare_df, last_update)
+    return PDF_OUTPUT_PATH
+
+
 # ===== 讀資料 =====
 premium_df, backtest_df, risk_df, summary_df, compare_df = load_data()
 last_update = load_last_update()
@@ -378,8 +410,14 @@ with r1:
             st.error(f"生成 PDF 失敗：{e}")
 
 with r2:
-    if PDF_OUTPUT_PATH.exists():
-        with open(PDF_OUTPUT_PATH, "rb") as f:
+    try:
+        pdf_path = ensure_fresh_pdf_report(summary_df, risk_df, compare_df, last_update)
+    except Exception as e:
+        pdf_path = None
+        st.error(f"準備 PDF 失敗：{e}")
+
+    if pdf_path and pdf_path.exists():
+        with open(pdf_path, "rb") as f:
             st.download_button(
                 label="⬇️ Download Strategy Report PDF",
                 data=f,

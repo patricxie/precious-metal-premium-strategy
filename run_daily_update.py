@@ -70,6 +70,7 @@ def main():
             "analysis_equity_curve_compare.py",
             "analysis_plot_backtest.py",
             "analysis_plot_zscore_signals.py",
+            "generate_strategy_report.py",
         ]
 
         for script in scripts:

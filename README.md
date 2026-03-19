@@ -166,6 +166,24 @@ Official docs:
 - [Streamlit Community Cloud](https://docs.streamlit.io/deploy/streamlit-community-cloud)
 - [Manage your app](https://docs.streamlit.io/deploy/streamlit-community-cloud/manage-your-app)
 
+## Automated Daily Refresh
+
+This repository includes a GitHub Actions workflow at [`/.github/workflows/daily_update.yml`](/Users/patric/Desktop/資料工程師/Precious_Metal_ETL/.github/workflows/daily_update.yml).
+
+What it does:
+
+1. Runs every day at 08:30 Taiwan time
+2. Executes [`run_daily_update.py`](/Users/patric/Desktop/資料工程師/Precious_Metal_ETL/run_daily_update.py)
+3. Regenerates processed CSV files, charts, SQLite data, and the PDF report
+4. Commits changed artifacts back to `main`
+
+Why this matters:
+
+- Streamlit Community Cloud reads from the GitHub repository
+- When the workflow pushes fresh artifacts, the deployed Streamlit app updates from the new commit
+
+You can also run the workflow manually from the GitHub Actions tab with `workflow_dispatch`.
+
 ## Project Structure
 
 ```text
