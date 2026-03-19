@@ -1,231 +1,211 @@
-## Live Dashboard
+# Precious Metal Premium Strategy
 
-(https://precious-metal-premium-strategy-aampauzxdfvbvwrafucckx.streamlit.app/)
-# Precious Metal Premium Mean-Reversion Strategy
+Live dashboard:
+[precious-metal-premium-strategy-aampauzxdfvbvwrafucckx.streamlit.app](https://precious-metal-premium-strategy-aampauzxdfvbvwrafucckx.streamlit.app/)
 
-This project analyzes the **premium spread between futures and spot prices of gold and silver** to identify potential mean-reversion trading opportunities.
+This project analyzes gold and silver futures data to generate mean-reversion trading signals, backtest those signals, and publish the results in a Streamlit dashboard.
 
-The project includes:
+## What This Project Does
 
-- Data extraction (ETL pipeline)
-- Premium calculation
-- Z-score signal generation
-- Backtesting framework
-- Risk metrics evaluation
-- Interactive Streamlit dashboard
+- Extracts gold and silver futures prices from Yahoo Finance
+- Builds rolling features and Z-score based signals
+- Loads transformed data into SQLite
+- Runs backtests and summary analytics
+- Serves reports and charts through Streamlit
 
----
+## Data Sources
 
-# Project Overview
+- Futures: Yahoo Finance via `yfinance`
+- Dashboard live market panel: Yahoo Finance symbols `GC=F`, `SI=F`, `GLD`, `SLV`
 
-In commodity markets, the price difference between **futures and spot markets** (premium) can reflect market expectations, liquidity, and short-term demand.
+## Current ETL Flow
 
-This project studies whether **extreme deviations in premium** tend to revert to the mean and whether those signals can be used for trading.
+The primary ETL entrypoint is [`main.py`](/Users/patric/Desktop/資料工程師/Precious_Metal_ETL/main.py).
 
-Core idea:
+It runs:
 
-When premium deviates significantly from its historical mean:
+1. [`extract/futures_yfinance.py`](/Users/patric/Desktop/資料工程師/Precious_Metal_ETL/extract/futures_yfinance.py)
+2. [`transform/compute_signals.py`](/Users/patric/Desktop/資料工程師/Precious_Metal_ETL/transform/compute_signals.py)
+3. [`load/to_sqlite.py`](/Users/patric/Desktop/資料工程師/Precious_Metal_ETL/load/to_sqlite.py)
 
-- **Z-score < -2 → BUY signal**
-- **Z-score > +2 → SELL signal**
+Output locations:
 
----
+- Raw futures CSV: [`extract/data`](/Users/patric/Desktop/資料工程師/Precious_Metal_ETL/extract/data)
+- Transformed feature CSV: [`transform/data`](/Users/patric/Desktop/資料工程師/Precious_Metal_ETL/transform/data)
+- SQLite database: [`database/precious_metal.db`](/Users/patric/Desktop/資料工程師/Precious_Metal_ETL/database/precious_metal.db)
+- Processed reports and charts: [`data/processed`](/Users/patric/Desktop/資料工程師/Precious_Metal_ETL/data/processed)
 
-# Data Sources
+## Health Check
 
-The project collects data from the following APIs:
+[`check_pipeline.py`](/Users/patric/Desktop/資料工程師/Precious_Metal_ETL/check_pipeline.py) validates:
 
-### Futures prices
-Yahoo Finance
+- Required CSV files exist
+- Required columns exist
+- Dates are valid and non-duplicated
+- Latest rows are complete
+- SQLite tables are populated
 
-Gold Futures
+Run it with:
 
-Silver Futures
+```bash
+./.venv/bin/python check_pipeline.py
+```
 
-### Spot prices
-Alpha Vantage API
+## Daily Update Flow
 
-Gold Spot  
-Silver Spot
+[`run_daily_update.py`](/Users/patric/Desktop/資料工程師/Precious_Metal_ETL/run_daily_update.py) runs:
 
----
+1. ETL pipeline
+2. Pipeline health check
+3. Backtest analysis
+4. Risk metrics
+5. Summary tables
+6. Equity curve comparison
+7. Backtest charts
+8. Z-score signal charts
 
-# ETL Pipeline
+It also updates:
 
-The data pipeline performs the following steps:
+- [`data/processed/daily_update_log.txt`](/Users/patric/Desktop/資料工程師/Precious_Metal_ETL/data/processed/daily_update_log.txt)
+- [`data/processed/last_update.json`](/Users/patric/Desktop/資料工程師/Precious_Metal_ETL/data/processed/last_update.json)
 
-### Extract
-Fetch futures and spot data
+Run it with:
 
-### Transform
-Calculate:
+```bash
+./.venv/bin/python run_daily_update.py
+```
 
-- futures price
-- spot price
-- premium
-- rolling mean
-- rolling standard deviation
-- Z-score signal
+## Strategy Logic
 
-### Load
-Store processed results in:
+The signal generation in the current ETL pipeline is based on rolling deviation from MA20:
 
----
+- `dev_ma20 = (close - ma_20) / ma_20`
+- Rolling Z-score is computed from `dev_ma20`
+- `BUY` when `dev_ma20_z <= -1.5` and trend is up
+- `SELL` when `dev_ma20_z >= 1.5` and trend is down
+- Otherwise `HOLD`
 
-# Strategy Logic
+Feature output columns include:
 
-Premium is defined as:
+- `close`
+- `ret_1d`
+- `ma_20`
+- `ma_60`
+- `dev_ma20`
+- `dev_ma20_z`
+- `trend_up`
+- `trend_down`
+- `signal`
 
-Z-score:
+## Local Setup
 
-Trading rules:
+Clone the repository:
 
-| Condition | Signal |
-|--------|--------|
-| Z < -2 | BUY |
-| Z > +2 | SELL |
-| otherwise | HOLD |
+```bash
+git clone https://github.com/patricxie/precious-metal-premium-strategy.git
+cd precious-metal-premium-strategy
+```
 
----
+Create and activate a virtual environment:
 
-# Backtest Results (2 Years)
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+```
 
-Backtest window:
+Install dependencies:
 
-Key results:
+```bash
+pip install -r requirements.txt
+```
 
-| Strategy | Return |
-|--------|--------|
-Silver BUY 20D | **317%**
-Silver BUY 10D | 111%
-Gold BUY 20D | 73%
+Run ETL:
 
-Average statistics include:
+```bash
+./.venv/bin/python main.py
+```
 
-- win rate
-- max drawdown
-- volatility
-- Sharpe ratio
+Run full daily update:
 
----
+```bash
+./.venv/bin/python run_daily_update.py
+```
 
-# Risk Metrics
+Launch the dashboard locally:
 
-Example metrics:
+```bash
+./.venv/bin/python -m streamlit run dashboard_app.py
+```
 
-| Asset | Signal | Holding | Win Rate | Max Drawdown | Sharpe |
-|------|------|------|------|------|------|
-Silver | BUY | 20D | 83% | -9.5% | 0.59
-Gold | BUY | 20D | 68% | -4.4% | 0.56
+## Streamlit Deployment
 
----
+This app can be deployed on Streamlit Community Cloud.
 
-# Strategy Visualization
+Deployment settings:
 
-Example outputs include:
+- Repository: `patricxie/precious-metal-premium-strategy`
+- Branch: `main`
+- Main file path: `dashboard_app.py`
 
-### Equity Curve
-Strategy capital growth comparison.
+Deployment steps:
 
-### Z-score signal chart
-Shows premium deviations and trading signals.
+1. Sign in at [share.streamlit.io](https://share.streamlit.io)
+2. Connect your GitHub account
+3. Create a new app
+4. Select the repository and branch
+5. Set the main file path to `dashboard_app.py`
+6. Deploy
 
-### Backtest summary charts
-Performance comparison across holding periods.
+Notes:
 
----
+- Dependency changes in `requirements.txt` trigger reinstallation on Streamlit Community Cloud.
+- The dashboard reads committed CSV outputs from [`data/processed`](/Users/patric/Desktop/資料工程師/Precious_Metal_ETL/data/processed), so the repo should contain fresh processed data before deployment.
 
-# Interactive Dashboard
+Official docs:
 
-This project includes a **Streamlit dashboard** to explore:
+- [Streamlit Community Cloud](https://docs.streamlit.io/deploy/streamlit-community-cloud)
+- [Manage your app](https://docs.streamlit.io/deploy/streamlit-community-cloud/manage-your-app)
 
-- backtest performance
-- risk metrics
-- strategy comparison
-- equity curves
+## Project Structure
 
-Run locally:
-
----
-
-# Project Structure
-Precious_Metal_ETL
-│
-├── extract
-│
-├── transform
-│
-├── load
-│
-├── analysis
-│
+```text
+Precious_Metal_ETL/
+├── extract/
+│   ├── data/
+│   └── futures_yfinance.py
+├── transform/
+│   ├── data/
+│   ├── calculate_premium.py
+│   └── compute_signals.py
+├── load/
+│   ├── save_to_csv.py
+│   └── to_sqlite.py
+├── data/
+│   └── processed/
+├── database/
 ├── dashboard_app.py
-│
+├── check_pipeline.py
 ├── main.py
-│
+├── run_daily_update.py
 └── requirements.txt
-
----
-
-# Installation
-
-Clone repository:
-git clone https://github.com/YOUR_USERNAME/precious-metal-premium-strategy.git
-
-Run ETL pipeline:
-python main.py
-
-Launch dashboard:
-streamlit run dashboard_app.py
-
----
-
-# Skills Demonstrated
-
-This project demonstrates the following data and quantitative skills:
-
-### Data Engineering
-- API data ingestion
-- ETL pipeline design
-- SQLite data storage
-
-### Data Analysis
-- statistical signal generation
-- backtesting framework
-- performance evaluation
-
-### Visualization
-- matplotlib charts
-- Streamlit interactive dashboard
-
----
-
-# Future Improvements
-
-Potential extensions:
-
-- multi-factor signals
-- machine learning models
-- portfolio allocation
-- automated data pipeline scheduling
-- cloud deployment
+```
 
 ## Dashboard Features
 
-- Live Market Panel
-- Today Trading Signal
-- Strategy Health Monitor
-- Equity Curve Visualization
-- Z-score Signal Chart
-- Backtest Detail Table
-- Strategy Ranking
-- Portfolio Simulator
-- Daily Auto Update
-- CLI Launcher
----
+- Live market panel
+- Latest signal summary
+- Backtest detail table
+- Risk metrics table
+- Equity curve comparison
+- Z-score signal charts
+- Portfolio simulation
+- Exported report artifacts
 
-# Author
+## Notes
+
+- [`transform/calculate_premium.py`](/Users/patric/Desktop/資料工程師/Precious_Metal_ETL/transform/calculate_premium.py) and [`load/save_to_csv.py`](/Users/patric/Desktop/資料工程師/Precious_Metal_ETL/load/save_to_csv.py) are legacy premium-analysis scripts and are not part of the primary `main.py` ETL flow.
+- The dashboard still reads processed premium-analysis outputs, so daily update artifacts should remain up to date if you want the hosted app to reflect the latest analytics.
+
+## Author
 
 Patric Xie
-
-Data Engineering / Quantitative Analysis Project
