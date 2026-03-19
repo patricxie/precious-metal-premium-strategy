@@ -1,7 +1,7 @@
 # Precious Metal Premium Strategy
 
 Live dashboard:
-[precious-metal-premium-strategy-aampauzxdfvbvwrafucckx.streamlit.app](https://precious-metal-premium-strategy-aampauzxdfvbvwrafucckx.streamlit.app/)
+https://precious-metal-premium-strategy-xyp2tgnhiej84ova3jgrzn.streamlit.app/
 
 This project analyzes gold and silver futures data to generate mean-reversion trading signals, backtest those signals, and publish the results in a Streamlit dashboard.
 
