@@ -4,6 +4,4 @@ numpy
 matplotlib
 yfinance
 requests
-sqlalchemy
-
 

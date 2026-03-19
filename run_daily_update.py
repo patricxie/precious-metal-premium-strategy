@@ -63,6 +63,7 @@ def main():
     try:
         scripts = [
             "main.py",
+            "check_pipeline.py",
             "analysis_backtest.py",
             "analysis_risk_metrics.py",
             "analysis_summary_table.py",
