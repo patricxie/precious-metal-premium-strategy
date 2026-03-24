@@ -19,7 +19,8 @@ venv/
 database/*.db
 
 # Streamlit cache
-.streamlit/
+.streamlit/*
+!.streamlit/config.toml
 
 # Logs
 logs/
@@ -29,3 +30,7 @@ logs/
 .vscode/
 
 *.egg-info/
+
+# Presentation previews
+presentation/previews/
+presentation/previews_full/

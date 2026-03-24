@@ -1,0 +1,15 @@
+.git
+.github
+.idea
+.venv
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.DS_Store
+presentation/previews/
+presentation/previews_full/
+presentation/*.pptx
+presentation/*.md
+presentation/*.png
+logs/
