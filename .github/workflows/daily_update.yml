@@ -67,7 +67,6 @@ jobs:
           git add \
             extract/data/*.csv \
             transform/data/*.csv \
-            database/*.db \
             data/processed/*.csv \
             data/processed/*.json \
             data/processed/*.pdf \
