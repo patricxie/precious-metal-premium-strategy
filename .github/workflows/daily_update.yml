@@ -72,6 +72,14 @@ jobs:
             data/processed/*.pdf \
             data/processed/charts/*.png
 
+      - name: Verify last_update.json was staged
+        if: success()
+        run: |
+          if git diff --cached --quiet -- data/processed/last_update.json; then
+            echo "data/processed/last_update.json was not updated by this run"
+            exit 1
+          fi
+
       - name: Detect changes
         if: success()
         id: changes
@@ -93,3 +101,26 @@ jobs:
         if: success() && steps.changes.outputs.has_changes == 'true'
         run: |
           git push origin HEAD:main
+
+      - name: Verify last_update.json was pushed to GitHub
+        if: success() && steps.changes.outputs.has_changes == 'true'
+        run: |
+          for attempt in 1 2 3 4 5; do
+            git fetch origin main --depth=1
+            git show origin/main:data/processed/last_update.json > /tmp/remote_last_update.json
+
+            if cmp -s data/processed/last_update.json /tmp/remote_last_update.json; then
+              echo "Verified: last_update.json was pushed to origin/main"
+              exit 0
+            fi
+
+            echo "Remote last_update.json does not match local file yet. Retry ${attempt}/5..."
+            sleep 5
+          done
+
+          echo "Local last_update.json:"
+          cat data/processed/last_update.json
+          echo
+          echo "Remote last_update.json:"
+          cat /tmp/remote_last_update.json
+          exit 1
