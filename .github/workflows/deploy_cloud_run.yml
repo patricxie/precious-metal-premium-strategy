@@ -1,0 +1,54 @@
+name: Deploy Cloud Run
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: deploy-cloud-run
+  cancel-in-progress: true
+
+env:
+  GCP_PROJECT_ID: project-6f7a4de7-bd07-408c-a53
+  GCP_REGION: asia-east1
+  GCP_SERVICE_NAME: precious-metal-dashboard
+  GCP_WORKLOAD_IDENTITY_PROVIDER: projects/37711474242/locations/global/workloadIdentityPools/github-actions-pool/providers/github-actions-provider
+  GCP_SERVICE_ACCOUNT: github-actions-deployer@project-6f7a4de7-bd07-408c-a53.iam.gserviceaccount.com
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Authenticate to Google Cloud
+        id: auth
+        uses: google-github-actions/auth@v3
+        with:
+          workload_identity_provider: ${{ env.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ env.GCP_SERVICE_ACCOUNT }}
+          project_id: ${{ env.GCP_PROJECT_ID }}
+
+      - name: Deploy to Cloud Run
+        id: deploy
+        uses: google-github-actions/deploy-cloudrun@v3
+        with:
+          service: ${{ env.GCP_SERVICE_NAME }}
+          region: ${{ env.GCP_REGION }}
+          project_id: ${{ env.GCP_PROJECT_ID }}
+          source: .
+          flags: --port=8080 --memory=1Gi --cpu=1
+
+      - name: Verify deployed URL
+        run: curl -I -L --retry 5 --retry-all-errors --fail "${{ steps.deploy.outputs.url }}"
+
+      - name: Print deployed URL
+        run: echo "Deployed to ${{ steps.deploy.outputs.url }}"

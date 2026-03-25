@@ -184,6 +184,25 @@ Why this matters:
 
 You can also run the workflow manually from the GitHub Actions tab with `workflow_dispatch`.
 
+## Automated Cloud Run Deploy
+
+This repository now includes a deployment workflow at [`.github/workflows/deploy_cloud_run.yml`](/Users/patric/Desktop/資料工程師/Precious_Metal_ETL/.github/workflows/deploy_cloud_run.yml).
+
+What it does:
+
+1. Triggers on every push to `main`
+2. Can also be run manually with `workflow_dispatch`
+3. Authenticates from GitHub Actions to Google Cloud using Workload Identity Federation
+4. Deploys the repo source to Cloud Run service `precious-metal-dashboard` in region `asia-east1`
+
+The GCP-side OIDC/bootstrap helper script lives at [`deploy/setup_github_oidc.sh`](/Users/patric/Desktop/資料工程師/Precious_Metal_ETL/deploy/setup_github_oidc.sh).
+
+Run it locally if you need to recreate the GitHub Actions to GCP trust configuration:
+
+```bash
+PATH="/Users/patric/google-cloud-sdk/bin:$PATH" ./deploy/setup_github_oidc.sh
+```
+
 ## Project Structure
 
 ```text
