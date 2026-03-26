@@ -184,6 +184,13 @@ Why this matters:
 
 You can also run the workflow manually from the GitHub Actions tab with `workflow_dispatch`.
 
+The daily refresh is now designed to be triggered by GCP Cloud Scheduler via `workflow_dispatch`, rather than GitHub's native `schedule`, to avoid GitHub scheduler drift and dropped runs.
+
+GCP resources for this trigger live in:
+
+- [`deploy/workflows/trigger_daily_update_dispatch.yaml`](/Users/patric/Desktop/資料工程師/Precious_Metal_ETL/deploy/workflows/trigger_daily_update_dispatch.yaml)
+- [`deploy/setup_gcp_scheduler_trigger.sh`](/Users/patric/Desktop/資料工程師/Precious_Metal_ETL/deploy/setup_gcp_scheduler_trigger.sh)
+
 ## Automated Cloud Run Deploy
 
 This repository now includes a deployment workflow at [`.github/workflows/deploy_cloud_run.yml`](/Users/patric/Desktop/資料工程師/Precious_Metal_ETL/.github/workflows/deploy_cloud_run.yml).
