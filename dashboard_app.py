@@ -24,20 +24,20 @@ SUMMARY_PATH = PROCESSED_DIR / "recent_2year_backtest_report_table.csv"
 COMPARE_PATH = PROCESSED_DIR / "equity_curve_comparison_all_strategies.csv"
 LAST_UPDATE_PATH = PROCESSED_DIR / "last_update.json"
 PDF_OUTPUT_PATH = PROCESSED_DIR / "strategy_report.pdf"
+DATA_PATHS = [
+    PREMIUM_PATH,
+    BACKTEST_PATH,
+    RISK_PATH,
+    SUMMARY_PATH,
+    COMPARE_PATH,
+]
 
 
 @st.cache_data
-def load_data():
-    if not PREMIUM_PATH.exists():
-        raise FileNotFoundError(f"找不到檔案：{PREMIUM_PATH}")
-    if not BACKTEST_PATH.exists():
-        raise FileNotFoundError(f"找不到檔案：{BACKTEST_PATH}")
-    if not RISK_PATH.exists():
-        raise FileNotFoundError(f"找不到檔案：{RISK_PATH}")
-    if not SUMMARY_PATH.exists():
-        raise FileNotFoundError(f"找不到檔案：{SUMMARY_PATH}")
-    if not COMPARE_PATH.exists():
-        raise FileNotFoundError(f"找不到檔案：{COMPARE_PATH}")
+def load_data(_data_signature):
+    for path in DATA_PATHS:
+        if not path.exists():
+            raise FileNotFoundError(f"找不到檔案：{path}")
 
     premium_df = pd.read_csv(PREMIUM_PATH)
     backtest_df = pd.read_csv(BACKTEST_PATH)
@@ -49,6 +49,10 @@ def load_data():
     backtest_df["date"] = pd.to_datetime(backtest_df["date"])
 
     return premium_df, backtest_df, risk_df, summary_df, compare_df
+
+
+def get_data_signature():
+    return tuple(path.stat().st_mtime_ns for path in DATA_PATHS)
 
 
 def _safe_last_close(symbol: str):
@@ -356,7 +360,7 @@ def ensure_fresh_pdf_report(summary_df, risk_df, compare_df, last_update) -> Pat
 
 
 # ===== 讀資料 =====
-premium_df, backtest_df, risk_df, summary_df, compare_df = load_data()
+premium_df, backtest_df, risk_df, summary_df, compare_df = load_data(get_data_signature())
 last_update = load_last_update()
 market_panel = get_market_panel_data(premium_df)
 today_signal = get_today_signal(premium_df)
