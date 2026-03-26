@@ -122,10 +122,11 @@ jobs:
           cat /tmp/remote_last_update.json
           exit 1
 
-      - name: Notify n8n webhook
+      - name: Notify LINE
         if: always()
         env:
-          N8N_WEBHOOK_URL: ${{ secrets.N8N_DAILY_UPDATE_WEBHOOK_URL }}
+          LINE_CHANNEL_ACCESS_TOKEN: ${{ secrets.LINE_CHANNEL_ACCESS_TOKEN }}
+          LINE_TO_ID: ${{ secrets.LINE_TO_ID }}
           JOB_STATUS: ${{ job.status }}
           CHANGES_PUSHED: ${{ steps.changes.outputs.has_changes }}
           REPOSITORY: ${{ github.repository }}
@@ -135,8 +136,8 @@ jobs:
           RUN_ID: ${{ github.run_id }}
           SERVER_URL: ${{ github.server_url }}
         run: |
-          if [ -z "${N8N_WEBHOOK_URL}" ]; then
-            echo "N8N_DAILY_UPDATE_WEBHOOK_URL is not set; skipping notification."
+          if [ -z "${LINE_CHANNEL_ACCESS_TOKEN}" ] || [ -z "${LINE_TO_ID}" ]; then
+            echo "LINE_CHANNEL_ACCESS_TOKEN or LINE_TO_ID is not set; skipping notification."
             exit 0
           fi
 
@@ -146,9 +147,11 @@ jobs:
           import subprocess
           from pathlib import Path
 
+          changes_pushed = os.environ.get("CHANGES_PUSHED") == "true"
+
           payload = {
               "job_status": os.environ.get("JOB_STATUS", "unknown"),
-              "changes_pushed": os.environ.get("CHANGES_PUSHED") == "true",
+              "changes_pushed": changes_pushed,
               "repository": os.environ.get("REPOSITORY"),
               "workflow": os.environ.get("WORKFLOW_NAME"),
               "ref_name": os.environ.get("REF_NAME"),
@@ -168,13 +171,37 @@ jobs:
                   "message": "last_update.json not found",
               }
 
-          Path("/tmp/n8n_daily_update_payload.json").write_text(
-              json.dumps(payload, ensure_ascii=False),
+          last_update = payload["last_update"]
+          icon = "✅" if payload["job_status"] == "success" else "❌"
+          line_message = "\n".join(
+              [
+                  f"{icon} Precious Metal ETL {payload['job_status']}",
+                  f"Last Update: {last_update.get('last_update_time') or 'N/A'}",
+                  f"Status: {last_update.get('status') or 'N/A'}",
+                  f"Message: {last_update.get('message') or 'N/A'}",
+                  f"Changes Pushed: {'true' if changes_pushed else 'false'}",
+                  f"Run: {payload['run_url']}",
+              ]
+          )
+
+          line_payload = {
+              "to": os.environ["LINE_TO_ID"],
+              "messages": [
+                  {
+                      "type": "text",
+                      "text": line_message,
+                  }
+              ],
+          }
+
+          Path("/tmp/line_push_payload.json").write_text(
+              json.dumps(line_payload, ensure_ascii=False),
               encoding="utf-8",
           )
           PY
 
           curl --fail --silent --show-error \
-            -X POST "${N8N_WEBHOOK_URL}" \
+            -X POST "https://api.line.me/v2/bot/message/push" \
+            -H "Authorization: Bearer ${LINE_CHANNEL_ACCESS_TOKEN}" \
             -H "Content-Type: application/json" \
-            --data @/tmp/n8n_daily_update_payload.json
+            --data @/tmp/line_push_payload.json

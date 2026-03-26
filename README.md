@@ -191,17 +191,22 @@ GCP resources for this trigger live in:
 - [`deploy/workflows/trigger_daily_update_dispatch.yaml`](/Users/patric/Desktop/資料工程師/Precious_Metal_ETL/deploy/workflows/trigger_daily_update_dispatch.yaml)
 - [`deploy/setup_gcp_scheduler_trigger.sh`](/Users/patric/Desktop/資料工程師/Precious_Metal_ETL/deploy/setup_gcp_scheduler_trigger.sh)
 
-## n8n LINE Notification
+## Direct LINE Notification
 
-After `Daily ETL Update` finishes, GitHub Actions can POST the result to an n8n webhook. You can then use n8n to forward the update to LINE.
+After `Daily ETL Update` finishes, GitHub Actions can send the result directly to LINE Messaging API without going through n8n.
 
 Setup notes live in:
 
-- [`deploy/n8n/line_daily_update_notification.md`](/Users/patric/Desktop/資料工程師/Precious_Metal_ETL/deploy/n8n/line_daily_update_notification.md)
+- [`deploy/line/github_actions_line_notification.md`](/Users/patric/Desktop/資料工程師/Precious_Metal_ETL/deploy/line/github_actions_line_notification.md)
 
 GitHub secret required:
 
-- `N8N_DAILY_UPDATE_WEBHOOK_URL`
+- `LINE_CHANNEL_ACCESS_TOKEN`
+- `LINE_TO_ID`
+
+An optional n8n importable template remains available if you later want workflow fan-out or richer routing:
+
+- [`deploy/n8n/line_daily_update_notification.workflow.json`](/Users/patric/Desktop/資料工程師/Precious_Metal_ETL/deploy/n8n/line_daily_update_notification.workflow.json)
 
 ## Automated Cloud Run Deploy
 

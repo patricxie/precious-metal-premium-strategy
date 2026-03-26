@@ -1,4 +1,8 @@
-# n8n + LINE 每日更新通知
+# n8n + LINE 每日更新通知（可選）
+
+這份文件現在是可選方案。專案預設通知路徑已改成 GitHub Actions 直接呼叫 LINE Messaging API，不再依賴 n8n。
+
+如果你需要多平台通知、條件分流或額外資料加工，才建議保留這個 n8n 流程。
 
 這個專案現在會在 `Daily ETL Update` GitHub Actions 結束後，額外 POST 一份 JSON payload 到你設定的 n8n webhook。
 
@@ -38,6 +42,10 @@ GitHub Actions 會送出類似這樣的 JSON：
 1. `Webhook` node
 2. `Code` node 或 `Edit Fields` node
 3. `HTTP Request` node 呼叫 LINE Messaging API push endpoint
+
+如果你想直接匯入一份範本，使用這個檔案：
+
+- [`line_daily_update_notification.workflow.json`](/Users/patric/Desktop/資料工程師/Precious_Metal_ETL/deploy/n8n/line_daily_update_notification.workflow.json)
 
 ## Webhook Node
 

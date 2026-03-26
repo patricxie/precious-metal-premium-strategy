@@ -1,0 +1,125 @@
+{
+  "name": "Precious Metal Daily Update LINE Notify",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "precious-metal-daily-update-line",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "0f0a1e3a-2c91-4f4b-9a43-9a0e9d5f1001",
+      "name": "GitHub Daily Update Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        260,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const p = $json;\nconst ok = p.job_status === 'success';\nconst icon = ok ? '✅' : '❌';\nconst updateTime = p.last_update?.last_update_time || 'N/A';\nconst updateMessage = p.last_update?.message || 'N/A';\nconst changesPushed = p.changes_pushed ? 'true' : 'false';\n\nreturn [\n  {\n    json: {\n      ...p,\n      lineText:\n        `${icon} Precious Metal ETL ${p.job_status}\\n` +\n        `Last Update: ${updateTime}\\n` +\n        `Message: ${updateMessage}\\n` +\n        `Changes Pushed: ${changesPushed}\\n` +\n        `Run: ${p.run_url}`,\n    },\n  },\n];"
+      },
+      "id": "f8e57762-21d1-4f31-a790-51fca55a1002",
+      "name": "Format LINE Message",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        540,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.line.me/v2/bot/message/push",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{$env.LINE_CHANNEL_ACCESS_TOKEN || 'YOUR_LINE_CHANNEL_ACCESS_TOKEN'}}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { \"to\": ($env.LINE_TO_ID || 'YOUR_LINE_USER_ID'), \"messages\": [ { \"type\": \"text\", \"text\": $json.lineText } ] } }}",
+        "options": {}
+      },
+      "id": "02d6b6cb-d0cb-4752-b41d-46b505f11003",
+      "name": "Send LINE Push",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        820,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { \"ok\": true, \"job_status\": $json.job_status, \"run_url\": $json.run_url } }}",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "id": "13be19af-53e5-4128-a40e-c91f65301004",
+      "name": "Respond Success",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        1100,
+        300
+      ]
+    }
+  ],
+  "connections": {
+    "GitHub Daily Update Webhook": {
+      "main": [
+        [
+          {
+            "node": "Format LINE Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format LINE Message": {
+      "main": [
+        [
+          {
+            "node": "Send LINE Push",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send LINE Push": {
+      "main": [
+        [
+          {
+            "node": "Respond Success",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {},
+  "active": false,
+  "versionId": "47d5e1da-4909-43f1-98d4-542eca0f1005",
+  "meta": {
+    "templateCredsSetupCompleted": false
+  },
+  "tags": []
+}
